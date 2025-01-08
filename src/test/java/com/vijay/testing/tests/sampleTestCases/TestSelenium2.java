@@ -1,5 +1,4 @@
 package com.vijay.testing.tests.sampleTestCases;
 
-public class TestSelenium {
-
+public class TestSelenium2 {
 }
