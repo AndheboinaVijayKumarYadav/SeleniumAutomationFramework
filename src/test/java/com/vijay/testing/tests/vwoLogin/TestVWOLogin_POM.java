@@ -1,26 +1,43 @@
 package com.vijay.testing.tests.vwoLogin;
 
-import com.vijay.testing.pages.LoginPage_POM;
+import com.vijay.testing.base.CommonToALLTest;
+import com.vijay.testing.driver.DriverManager;
+import com.vijay.testing.pages.vwo.DashboardPage_POM;
+import com.vijay.testing.pages.vwo.LoginPage_POM;
+import com.vijay.testing.utils.PropertiesReader;
 import io.qameta.allure.Description;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.edge.EdgeDriver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class TestVWOLogin_POM {
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+public class TestVWOLogin_POM extends CommonToALLTest {
 
     @Description("Verify that invalid login gives error message")
     @Test
     public void testLoginNegativeVWO(){
 
-        WebDriver driver = new EdgeDriver();
-        LoginPage_POM loginPagePom = new LoginPage_POM(driver);
-        driver.get("https://app.vwo.com");
-        driver.manage().window().maximize();
+//        WebDriver driver = DriverManager.getDriver();
+//        driver.get("https://app.vwo.com");
+//      driver.manage().window().maximize();
 
-        String error_message = loginPagePom.loginIntoVWOInvalidCredentials("admin","123");
-        Assert.assertEquals(error_message,"Your email, password, IP address or location did not match");
+        LoginPage_POM loginPagePom = new LoginPage_POM(DriverManager.getDriver());
+        String error_message = loginPagePom.loginIntoVWOInvalidCredentials(PropertiesReader.readKey("invalid_username"),PropertiesReader.readKey("invalid_password"));
+        Assert.assertEquals(error_message, PropertiesReader.readKey("error_message"));
 
-        driver.quit();
+//        driver.quit();
+    }
+
+    @Description("Verify that valid login, goes to dashboard page")
+    @Test
+    public void testLoginPositiveVWO(){
+        LoginPage_POM loginPagePom = new LoginPage_POM(DriverManager.getDriver());
+        loginPagePom.loginToVWOLoginValidCreds(PropertiesReader.readKey("username"),PropertiesReader.readKey("password"));
+
+        DashboardPage_POM dashboardPage_pom = new DashboardPage_POM(DriverManager.getDriver());
+        String loggedInUserName = dashboardPage_pom.loggedInUserName();
+
+        assertThat(loggedInUserName).isNotBlank().isNotNull().isNotEmpty();
+        Assert.assertEquals(loggedInUserName, PropertiesReader.readKey("expected_username"));
     }
 }
